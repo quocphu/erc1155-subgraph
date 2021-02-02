@@ -1,0 +1,28 @@
+specVersion: 0.0.2
+description: Gravatar for Ethereum
+repository: https://github.com/graphprotocol/example-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: ERC1155
+    network: mainnet
+    source:
+      address: '0xEa2ff902dbeEECcc828757B881b343F9316752e5'
+      abi: Card
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - TransferSingle
+      abis:
+        - name: Card
+          file: ./abis/Card.json
+      eventHandlers:
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+        
+      file: ./src/erc1155.ts

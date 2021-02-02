@@ -1,0 +1,15 @@
+type Transfer @entity {
+  id: ID!
+  operator: String!
+  from: String!
+  to: String!
+  cardId: BigInt
+  amount: BigInt
+}
+
+type CardOwner @entity {
+  id: ID!
+  cardId: BigInt
+  amount: BigInt
+  owner: String!
+}

@@ -1,0 +1,74 @@
+version: '3'
+services:
+  graph-node:
+    image: graphprotocol/graph-node
+    ports:
+      - '8000:8000'
+      - '8001:8001'
+      - '8020:8020'
+      - '8030:8030'
+      - '8040:8040'
+    depends_on:
+      - ipfs
+      - postgres
+      - ganache
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ethereum: 'mainnet:http://ganache:8545'
+      RUST_LOG: info
+  ipfs:
+    image: ipfs/go-ipfs:v0.4.23
+    ports:
+      - '5001:5001'
+    volumes:
+      - ./data/ipfs:/data/ipfs
+
+  postgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    volumes:
+      - postgres-graph:/var/lib/postgresql/data:z
+
+  pgadmin-graph:
+    container_name: pgadmin-graph
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@blockdevs.info}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-Super@wsom3}
+    volumes:
+       - pgadmin-graph:/root/.pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+
+  ganache:
+    image: trufflesuite/ganache-cli:latest
+    ports:
+      - "8545:8545"
+    volumes:
+      - ganache:/ganache_data
+    entrypoint:
+      - node
+      - /app/ganache-core.docker.cli.js
+      - --deterministic
+      - --db=/ganache_data
+      - --mnemonic
+      - 'minimum symptom minute gloom tragic situate silver mechanic salad amused elite beef'
+      - --networkId
+      - '1'
+      - --hostname
+      - '0.0.0.0'
+      - --debug
+volumes:
+    postgres-graph:
+    pgadmin-graph:
+    ganache:
